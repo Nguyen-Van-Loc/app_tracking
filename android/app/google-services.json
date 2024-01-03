@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "319168568025",
+    "project_id": "fir-a1f45",
+    "storage_bucket": "fir-a1f45.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319168568025:android:f503479264ac8fe5f8fcc8",
+        "android_client_info": {
+          "package_name": "com.example.app_tracking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAboHM_Z_y2MmZ984dq6Td68wb_JWET5Os"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:319168568025:android:091eb15059ed3374f8fcc8",
+        "android_client_info": {
+          "package_name": "com.example.demo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAboHM_Z_y2MmZ984dq6Td68wb_JWET5Os"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
