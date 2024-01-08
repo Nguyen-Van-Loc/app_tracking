@@ -50,6 +50,7 @@ class ApiClient extends GetxService {
       {Map<String, dynamic>? query, Map<String, String>? headers}) async {
     try {
       if (Foundation.kDebugMode) {
+        print('====> API Body: $headers');
         print('====> API Call: $uri\nHeader: $_mainHeaders');
       }
       Http.Response response = await Http.get(
@@ -67,6 +68,7 @@ class ApiClient extends GetxService {
       String requestBody = jsonEncode(body);
       if (Foundation.kDebugMode) {
         print('====> API Body: $requestBody');
+        print('====> API Call: $uri\nHeader: $_mainHeaders');
       }
       Http.Response response = await Http.post(
         Uri.parse(appBaseUrl + uri),
