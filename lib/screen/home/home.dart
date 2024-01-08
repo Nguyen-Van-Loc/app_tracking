@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app_tracking/api/auth_controller.dart';
 import 'package:app_tracking/data/model/body/notifi.dart';
 import 'package:app_tracking/data/repository/auth_repo.dart';
@@ -7,6 +9,7 @@ import 'package:app_tracking/screen/search/search_screen.dart';
 import 'package:app_tracking/screen/user/profile_screen.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -66,7 +69,6 @@ class _HomeState extends State<Home> {
       EasyLoading.showError("you've_already_marked_your_time_today".tr);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

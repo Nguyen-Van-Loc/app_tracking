@@ -55,6 +55,9 @@ class _ListofemployeeState extends State<Listofemployee> {
   void getListUser() async {
     loading = true;
     user = await Get.find<AuthController>().postListUser(page);
+    if (user == null) {
+      return;
+    }
     setState(() {
       loading = false;
     });

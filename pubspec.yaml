@@ -110,10 +110,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-  fonts:
-    - family: LatoRegular
-      fonts:
-        - asset: assets/font/LatoRegular.ttf
   assets:
     - assets/image/background.png
     - assets/image/light.png

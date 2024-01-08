@@ -43,284 +43,129 @@ class AuthRepo {
   }
 
   Future<Response> getTokenDevice() async {
-    Get.lazyPut(
-        () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
     String tokenDevice = await NotificationHelper.getDeviceToken();
-    final token = Get.find<AuthRepo>().getUserToken();
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    //call api
-    return await apiClient.getData(AppConstants.TOKENDEVICE,
-        query: {"tokenDevice": tokenDevice}, headers: header);
+    return await apiClient
+        .getData(AppConstants.TOKENDEVICE, query: {"tokenDevice": tokenDevice});
   }
 
   Future<Response> listUser(int size) async {
-    Get.lazyPut(
-        () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
-    final token = Get.find<AuthRepo>().getUserToken();
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        AppConstants.SEARCH_BY_PAGE,
-        jsonEncode(<String, dynamic>{
-          "keyWord": "string",
-          "pageIndex": 0,
-          "size": size,
-          "status": 0
-        }),
-        header);
+    return await apiClient.postData(AppConstants.SEARCH_BY_PAGE,
+        {"keyWord": "string", "pageIndex": 0, "size": size, "status": 0});
   }
 
   Future<Response> listNew(int size) async {
     Get.lazyPut(
         () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
-    final token = Get.find<AuthRepo>().getUserToken();
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        AppConstants.GET_NEWS,
-        jsonEncode(<String, dynamic>{
-          "keyWord": "string",
-          "pageIndex": 0,
-          "size": size,
-          "status": 0
-        }),
-        header);
+    return await apiClient.postData(AppConstants.GET_NEWS,
+        {"keyWord": "string", "pageIndex": 0, "size": size, "status": 0});
   }
 
   Future<Response> getTracking() async {
-    Get.lazyPut(
-        () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
-    final token = Get.find<AuthRepo>().getUserToken();
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.getData(AppConstants.TRACKING_GET_POST,
-        headers: header);
+    return await apiClient.getData(AppConstants.TRACKING_GET_POST);
   }
 
   Future<Response> deleteTracking(int id) async {
-    Get.lazyPut(
-        () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
-    final token = Get.find<AuthRepo>().getUserToken();
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.deleteData("${AppConstants.TRACKING_UPDATE_DEL}$id",
-        headers: header);
+    return await apiClient.deleteData(
+      "${AppConstants.TRACKING_UPDATE_DEL}$id",
+    );
   }
 
   Future<Response> createUser(User user) async {
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        AppConstants.SIGN_UP,
-        jsonEncode(<String, dynamic>{
-          "active": true,
-          "changePass": true,
-          "confirmPassword": user.confirmPassword,
-          "displayName": user.displayName,
-          "email": user.email,
-          "firstName": user.firstName,
-          "gender": user.gender,
-          "lastName": user.lastName,
-          "password": user.password,
-          "university": user.university,
-          "username": user.username,
-          "year": user.year,
-          "birthPlace": user.birthPlace,
-        }),
-        header);
+    return await apiClient.postData(AppConstants.SIGN_UP, {
+      "active": true,
+      "changePass": true,
+      "confirmPassword": user.confirmPassword,
+      "displayName": user.displayName,
+      "email": user.email,
+      "firstName": user.firstName,
+      "gender": user.gender,
+      "lastName": user.lastName,
+      "password": user.password,
+      "university": user.university,
+      "username": user.username,
+      "year": user.year,
+      "birthPlace": user.birthPlace,
+    });
   }
 
   Future<Response> saveTracking(
       Map<String, dynamic> user, String content) async {
-    Get.lazyPut(
-        () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
     final formattedDate = DateConverter.localDateToIsoString(DateTime.now());
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        AppConstants.TRACKING_GET_POST,
-        jsonEncode(<String, dynamic>{
-          "content": content,
-          "user": user,
-          "date": formattedDate
-        }),
-        header);
+    return await apiClient.postData(AppConstants.TRACKING_GET_POST,
+        {"content": content, "user": user, "date": formattedDate});
   }
 
   Future<Response> updateTracking(
       Map<String, dynamic> user, String content, int id) async {
-    Get.lazyPut(
-        () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
     final formattedDate = DateConverter.localDateToIsoString(DateTime.now());
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        "${AppConstants.TRACKING_UPDATE_DEL}$id",
-        jsonEncode(<String, dynamic>{
-          "content": content,
-          "user": user,
-          "date": formattedDate
-        }),
-        header);
+    return await apiClient.postData("${AppConstants.TRACKING_UPDATE_DEL}$id",
+        {"content": content, "user": user, "date": formattedDate});
   }
 
   Future<Response> updateUser(User user) async {
     final roles = user.roles?.map((role) => role.toJson()).toList();
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        "${AppConstants.BASE_URL_UPDATE}${user.id}",
-        jsonEncode(<String, dynamic>{
-          "active": true,
-          "displayName": user.displayName,
-          "email": user.email,
-          "password": user.password,
-          "university": user.university,
-          "username": user.username,
-          "year": user.year.toString(),
-          "roles": roles,
-        }),
-        header);
+    return await apiClient
+        .postData("${AppConstants.BASE_URL_UPDATE}${user.id}", {
+      "active": true,
+      "displayName": user.displayName,
+      "email": user.email,
+      "password": user.password,
+      "university": user.university,
+      "username": user.username,
+      "year": user.year.toString(),
+      "roles": roles,
+    });
   }
 
   Future<Response> postNews(News news) async {
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        AppConstants.POST_NEWS,
-        jsonEncode(<String, dynamic>{
-          "content": news.content,
-          "date": news.date,
-          "user": news.user,
-          "media": news.media,
-          "like": news.likes,
-          "comments": news.comments
-        }),
-        header);
+    return await apiClient.postData(AppConstants.POST_NEWS, {
+      "content": news.content,
+      "date": news.date,
+      "user": news.user,
+      "media": news.media,
+      "like": news.likes,
+      "comments": news.comments
+    });
   }
+
   Future<Response> getNotifi() async {
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-      languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
     return await apiClient.getData(
-        AppConstants.GET_NOTIFI,headers:
-        header);
+      AppConstants.GET_NOTIFI,
+    );
   }
 
   Future<Response> likesNews(News news) async {
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-          languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        "${AppConstants.LIKE_NEWS}${news.id}",
-        jsonEncode(<String, dynamic>{
-          "date": news.date,
-          "post": {
-            "comments": news.comments,
-            "content": news.content,
-            "date": news.date,
-            "id": news.id,
-            "likes": [null],
-            "media":news.media,
-            "user":news.user
-          },
-          "type":0,
-          "user":news.user
-        }),
-        header);
+    return await apiClient.postData("${AppConstants.LIKE_NEWS}${news.id}", {
+      "date": news.date,
+      "post": {
+        "comments": news.comments,
+        "content": news.content,
+        "date": news.date,
+        "id": news.id,
+        "likes": [null],
+        "media": news.media,
+        "user": news.user
+      },
+      "type": 0,
+      "user": news.user
+    });
   }
-  Future<Response> commentsNews(News news,String comments) async {
-    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
-    final token = Get.find<AuthRepo>().getUserToken();
-    Map<String, String> header = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      AppConstants.LOCALIZATION_KEY:
-      languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
-    };
-    return await apiClient.postData(
-        "${AppConstants.COMMENTS_NEWS}${news.id}",
-        jsonEncode(<String, dynamic>{
-          "content": comments,
-          "date": news.date,
-          "post": {
-            "comments": [null],
-            "content": news.content,
-            "date": news.date,
-            "id": news.id,
-            "likes": news.likes,
-            "media":news.media,
-            "user":news.user
-          },
-          "user":news.user
-        }),
-        header);
+
+  Future<Response> commentsNews(News news, String comments) async {
+    return await apiClient.postData("${AppConstants.COMMENTS_NEWS}${news.id}", {
+      "content": comments,
+      "date": news.date,
+      "post": {
+        "comments": [null],
+        "content": news.content,
+        "date": news.date,
+        "id": news.id,
+        "likes": news.likes,
+        "media": news.media,
+        "user": news.user
+      },
+      "user": news.user
+    });
   }
 
   Future<Response> logOut() async {
@@ -342,8 +187,9 @@ class AuthRepo {
   Future<List<String>?> getNewsUser() async {
     return apiClient.sharedPreferences.getStringList("newsList");
   }
-  String getIp()  {
-    return sharedPreferences.getString("ip") ??"";
+
+  String getIp() {
+    return sharedPreferences.getString("ip") ?? "";
   }
 
   Future<List<String>?> getListUser() async {
@@ -366,17 +212,18 @@ class AuthRepo {
     return await apiClient.getData(AppConstants.BLOCK_USER + useId.toString(),
         headers: header);
   }
+
   Future<Response> getTime_Sheets(String ip) async {
     final token = Get.find<AuthRepo>().getUserToken();
     var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
     Map<String, String> header = {
       'Content-Type': 'application/x-www-form-urlencoded',
       AppConstants.LOCALIZATION_KEY:
-      languageCode ?? AppConstants.languages[0].languageCode,
+          languageCode ?? AppConstants.languages[0].languageCode,
       'Authorization': token
     };
-    return await apiClient.getData(AppConstants.TIME_SHEETS ,query: {"ip": ip},
-        headers: header);
+    return await apiClient.getData(AppConstants.TIME_SHEETS,
+        query: {"ip": ip}, headers: header);
   }
 
   Future<String> _saveDeviceToken() async {

@@ -63,18 +63,18 @@ class _HomeScreenSection0State extends State<HomeScreenSection0> {
   }
 
   void getListNew() async {
-      latestComments = [];
-      loading = true;
-      newsList = await Get.find<AuthController>().postListNews(page);
-      if (newsList == null) {
-        return;
-      }
-      setState(() {
-        loading = false;
-      });
-      showCommentsList = List.generate(newsList!.length, (index) => false);
-      commentsControllers =
-          List.generate(newsList!.length, (index) => TextEditingController());
+    latestComments = [];
+    loading = true;
+    newsList = await Get.find<AuthController>().postListNews(page);
+    if (newsList == null) {
+      return;
+    }
+    setState(() {
+      loading = false;
+    });
+    showCommentsList = List.generate(newsList!.length, (index) => false);
+    commentsControllers =
+        List.generate(newsList!.length, (index) => TextEditingController());
   }
 
   @override

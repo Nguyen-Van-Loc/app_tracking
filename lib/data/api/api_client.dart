@@ -62,17 +62,15 @@ class ApiClient extends GetxService {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
-  Future<Response> postData(String uri, dynamic body,
-      Map<String, String>? headers) async {
+  Future<Response> postData(String uri, dynamic body) async {
     try {
       String requestBody = jsonEncode(body);
       if (Foundation.kDebugMode) {
-        print('====> API Call: $uri\nHeader: $_mainHeaders');
         print('====> API Body: $requestBody');
       }
       Http.Response response = await Http.post(
         Uri.parse(appBaseUrl + uri),
-        body: body,
+        body: requestBody,
         headers: _mainHeaders,
       ).timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri);
