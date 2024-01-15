@@ -5,8 +5,11 @@ import 'package:app_tracking/data/model/body/user.dart';
 import 'package:app_tracking/data/model/response/token_resposive.dart';
 import 'package:app_tracking/data/repository/auth_repo.dart';
 import 'package:app_tracking/view/custom_snackbar.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+
+import '../data/api/api_client.dart';
 
 class AuthController extends GetxController implements GetxService {
   final AuthRepo repo;
@@ -15,10 +18,11 @@ class AuthController extends GetxController implements GetxService {
 
   bool _loading = false;
   User _user = User();
-  List<dynamic> listUser = [];
-
+  List<User>? listUser;
+  List<News>? listNews;
+  List<Notifications>? listNoti;
   bool get loading => _loading;
-
+  String image="";
   User get user => _user;
 
   Future<int> login(String username, String password) async {
@@ -38,39 +42,52 @@ class AuthController extends GetxController implements GetxService {
     return response.statusCode!;
   }
 
-  Future<List<User>?> postListUser(int size) async {
+  Future<int> postListUser(int size) async {
     _loading = true;
     Response response = await repo.listUser(size);
     if (response.statusCode == 200) {
       final List<dynamic> responseData = response.body["content"];
-      List<User> newsList = responseData.map((content) => User.fromJson(content)).toList();
-      return newsList;
+      listUser = responseData.map((content) => User.fromJson(content)).toList();
     } else {
       ApiChecker.checkApi(response);
     }
     _loading = false;
-    return null;
+    return response.statusCode!;
   }
-  Future<List<News>?> postListNews(int size) async {
+
+  Future<int> postListNews(int size) async {
     _loading = true;
     Response response = await repo.listNew(size);
     if (response.statusCode == 200) {
       final List<dynamic> responseData = response.body["content"];
-      List<News> newsList = responseData.map((content) => News.fromJson(content)).toList();
-      return newsList;
+      listNews = responseData.map((content) => News.fromJson(content)).toList();
     } else {
       ApiChecker.checkApi(response);
     }
     _loading = false;
-    return null;
+    return response.statusCode!;
   }
+
   Future<int> postNews(News news) async {
     _loading = true;
     EasyLoading.show(status: "loading...");
     Response response = await repo.postNews(news);
     if (response.statusCode == 200) {
       EasyLoading.dismiss();
-     snackbarSuccess("posted_successfully".tr);
+      snackbarSuccess("posted_successfully".tr);
+    } else {
+      ApiChecker.checkApi(response);
+    }
+    _loading = false;
+    return response.statusCode!;
+  }
+  Future<int> postImage(List<MultipartBody> imageList) async {
+    _loading = true;
+    Response response = await repo.postImage(imageList);
+    if (response.statusCode == 200) {
+      print(response.body);
+      EasyLoading.dismiss();
+      snackbarSuccess("posted_successfully".tr);
     } else {
       ApiChecker.checkApi(response);
     }
@@ -89,10 +106,11 @@ class AuthController extends GetxController implements GetxService {
     _loading = false;
     return response.statusCode!;
   }
-  Future<int> commentsNews(News news,String comment) async {
+
+  Future<int> commentsNews(News news, String comment) async {
     _loading = true;
     EasyLoading.show(status: "loading...");
-    Response response = await repo.commentsNews(news,comment);
+    Response response = await repo.commentsNews(news, comment);
     if (response.statusCode == 200) {
       EasyLoading.dismiss();
     } else {
@@ -101,18 +119,21 @@ class AuthController extends GetxController implements GetxService {
     _loading = false;
     return response.statusCode!;
   }
-  Future<List<Notifications>?> getNotification() async {
+
+  Future<int> getNotification() async {
     Response response = await repo.getNotifi();
     if (response.statusCode == 200) {
       final List<dynamic> responseData = response.body;
-      List<Notifications> notification = responseData.map((content) => Notifications.fromJson(content)).toList();
-      return notification;
+      listNoti = responseData
+          .map((content) => Notifications.fromJson(content))
+          .toList();
     } else {
       ApiChecker.checkApi(response);
     }
     _loading = false;
-    return null;
+    return response.statusCode!;
   }
+
   Future<int> logOut() async {
     _loading = true;
     EasyLoading.show(status: "loading...");
@@ -149,14 +170,12 @@ class AuthController extends GetxController implements GetxService {
   ) async {
     EasyLoading.show(status: "loading...");
     Response response = await repo.createUser(user);
-    if(response.statusCode ==200){
+    if (response.statusCode == 200) {
       EasyLoading.dismiss();
-      snackbarSuccess("register".tr+"success".tr);
-    }
-    else if(response.statusCode ==400){
+      snackbarSuccess("register".tr + "success".tr);
+    } else if (response.statusCode == 400) {
       snackbarFailed("account_already_exists".tr);
-    }
-    else {
+    } else {
       ApiChecker.checkApi(response);
     }
     return response.statusCode!;
@@ -165,36 +184,44 @@ class AuthController extends GetxController implements GetxService {
   Future<int> editUser(User user) async {
     EasyLoading.show(status: "loading...");
     Response response = await repo.updateUser(user);
-    if(response.statusCode == 200){
+    if (response.statusCode == 200) {
       EasyLoading.dismiss();
       snackbarSuccess("account_updated_successfully".tr);
-    }
-    else {
+    } else {
       print(response.statusCode!);
       ApiChecker.checkApi(response);
     }
     return response.statusCode!;
   }
-  Future<int> time_Sheets(String ip) async {
+
+  Future<int> timeSheets(String ip) async {
     EasyLoading.show(status: "loading...");
-    Response response = await repo.getTime_Sheets(ip);
-    if(response.statusCode == 200){
+    Response response = await repo.getTimeSheets(ip);
+    if (response.statusCode == 200) {
       EasyLoading.dismiss();
       snackbarSuccess("you_have_succeeded_in_timekeeping".tr);
-    }
-    else {
+    } else {
       ApiChecker.checkApi(response);
     }
     return response.statusCode!;
   }
+  Future<int> getImageFile() async {
+    Response response = await repo.getImage();
+    if (response.statusCode == 200) {
+      image= response.body;
+    } else {
+      ApiChecker.checkApi(response);
+    }
+    return response.statusCode!;
+  }
+
   Future<int> blockUser(int userId) async {
     EasyLoading.show(status: "loading...");
     Response response = await repo.blockUser(userId);
-    if(response.statusCode == 200){
+    if (response.statusCode == 200) {
       EasyLoading.dismiss();
       snackbarSuccess("the_account_has_been_successfully_disabled".tr);
-    }
-    else {
+    } else {
       ApiChecker.checkApi(response);
     }
     return response.statusCode!;

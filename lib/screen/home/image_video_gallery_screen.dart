@@ -13,10 +13,10 @@ class ImagePickPage extends StatefulWidget {
   final bool multiple;
 
   @override
-  State<ImagePickPage> createState() => _ImagePickPageState();
+  State<ImagePickPage> createState() => ImagePickPageState();
 }
 
-class _ImagePickPageState extends State<ImagePickPage> {
+class ImagePickPageState extends State<ImagePickPage> {
   List<Widget> imageList = [];
   int curentPage = 0;
   int? lastPage;
@@ -45,10 +45,15 @@ class _ImagePickPageState extends State<ImagePickPage> {
 
   void toggleSelection(AssetEntity asset) {
     setState(() {
-      if (selectedImages.contains(asset)) {
-        selectedImages.remove(asset);
+      if (widget.multiple) {
+        if (selectedImages.contains(asset)) {
+          selectedImages.remove(asset);
+        } else {
+          selectedImages.add(asset);
+        }
       } else {
         selectedImages.add(asset);
+        convertSelectedImagesToUint8List();
       }
     });
   }
@@ -72,7 +77,7 @@ class _ImagePickPageState extends State<ImagePickPage> {
   }
 
   void convertSelectedImagesToUint8List() async {
-    if (!widget.multiple && selectedImages.isNotEmpty) {
+    if (!widget.multiple) {
       AssetEntity asset = selectedImages.first;
       File file = await convertAssetToFile(asset);
       Navigator.pop(context, file);
@@ -93,37 +98,55 @@ class _ImagePickPageState extends State<ImagePickPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("library".tr),
-        actions: [
-          IconButton(
-            onPressed: selectedImages.isEmpty
-                ? null
-                : () {
-                    convertSelectedImagesToUint8List();
+        actions: widget.multiple
+            ? [
+                IconButton(
+                  onPressed: selectedImages.isEmpty
+                      ? null
+                      : () {
+                          convertSelectedImagesToUint8List();
+                        },
+                  icon: const Icon(Icons.done),
+                ),
+              ]
+            : null,
+      ),
+      body: imageList.isEmpty
+          ? const Center(
+              child: Text(
+                'No photos found on this device.',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scroll) {
+                  handleScrollEvent(scroll);
+                  return true;
+                },
+                child: GridView.builder(
+                  itemCount: imageList.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                  ),
+                  itemBuilder: (context, index) {
+                    return imageList[index];
                   },
-            icon: const Icon(Icons.done),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (ScrollNotification scroll) {
-            handleScrollEvent(scroll);
-            return true;
-          },
-          child: GridView.builder(
-            itemCount: imageList.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
+                ),
+              ),
             ),
-            itemBuilder: (context, index) {
-              return imageList[index];
-            },
-          ),
-        ),
-      ),
     );
   }
+}
+
+Widget buildNoPhotosFoundWidget() {
+  return const Center(
+    child: Text(
+      'No photos found on this device.',
+      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    ),
+  );
 }
 
 class ImageLoader {
@@ -136,52 +159,37 @@ class ImageLoader {
     required Function(AssetEntity) toggleSelection,
   }) async {
     lastPage = curentPage;
-    final permission1 = await Permission.storage.isDenied;
-    !permission1
-        ? buildNoPhotosFoundWidget()
-        : await Permission.storage.request();
+    // final permission1 = await Permission.storage.isDenied;
+    await Permission.storage.request();
     List<AssetPathEntity> album = await PhotoManager.getAssetPathList(
-      type: RequestType.all,
+      type: multiple ? RequestType.all : RequestType.image,
       onlyAll: true,
     );
-    if (album.isEmpty) {
-      return [buildNoPhotosFoundWidget()];
-    } else {
-      List<AssetEntity> photos =
-          await album[0].getAssetListPaged(page: curentPage, size: 24);
-      List<Widget> temp = [];
-      for (var asset in photos) {
-        temp.add(
-          FutureBuilder(
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return ImageWidget(
-                  asset: asset,
-                  imageData: snapshot.data as Uint8List,
-                  selectedImages: selectedImages,
-                  toggleSelection: toggleSelection,
-                  multiple: multiple,
-                );
-              }
-              return const SizedBox();
-            },
-            future: asset.thumbnailDataWithSize(
-              const ThumbnailSize(200, 200),
-            ),
+    List<AssetEntity> photos =
+        await album[0].getAssetListPaged(page: curentPage, size: 24);
+    List<Widget> temp = [];
+    for (var asset in photos) {
+      temp.add(
+        FutureBuilder(
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return ImageWidget(
+                asset: asset,
+                imageData: snapshot.data as Uint8List,
+                selectedImages: selectedImages,
+                toggleSelection: toggleSelection,
+                multiple: multiple,
+              );
+            }
+            return const SizedBox();
+          },
+          future: asset.thumbnailDataWithSize(
+            const ThumbnailSize(200, 200),
           ),
-        );
-      }
-      return temp;
+        ),
+      );
     }
-  }
-
-  Widget buildNoPhotosFoundWidget() {
-    return const Center(
-      child: Text(
-        'No photos found on this device.',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
-    );
+    return temp;
   }
 }
 
@@ -239,14 +247,16 @@ class _ImageWidgetState extends State<ImageWidget> {
           Positioned(
             top: 4,
             right: 4,
-            child: CustomCheckbox(
-              value: isSelected,
-              onChanged: (value) {
-                setState(() {
-                  widget.toggleSelection(widget.asset);
-                });
-              },
-            ),
+            child: !widget.multiple
+                ? const SizedBox.shrink()
+                : CustomCheckbox(
+                    value: isSelected,
+                    onChanged: (value) {
+                      setState(() {
+                        widget.toggleSelection(widget.asset);
+                      });
+                    },
+                  ),
           ),
           if (isVideo)
             const Positioned(

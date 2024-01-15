@@ -80,3 +80,7 @@ bool isPasswordMatch(String password, String confirmPassword) {
   }
   return true;
 }
+void showSnackbar(String message ,context) {
+  ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(message)));
+}

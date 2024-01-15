@@ -37,10 +37,11 @@ class ApiClient extends GetxService {
   void updateHeader(
       String token, List<int>? zoneIDs, String? languageCode, int moduleID) {
     Map<String, String> header = {
-      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Type': 'application/json',
+      'Charset':'uft-8',
       AppConstants.LOCALIZATION_KEY:
           languageCode ?? AppConstants.languages[0].languageCode,
-      'Authorization': token
+      'Authorization': token,
     };
     header.addAll({AppConstants.MODULE_ID: moduleID.toString()});
     _mainHeaders = header;
@@ -63,7 +64,7 @@ class ApiClient extends GetxService {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
-  Future<Response> postData(String uri, dynamic body) async {
+  Future<Response> postData(String uri, Map<String, dynamic> body) async {
     try {
       String requestBody = jsonEncode(body);
       if (Foundation.kDebugMode) {
@@ -74,6 +75,7 @@ class ApiClient extends GetxService {
         Uri.parse(appBaseUrl + uri),
         body: requestBody,
         headers: _mainHeaders,
+        encoding: Encoding.getByName("utf-8"),
       ).timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri);
     } catch (e) {
@@ -91,6 +93,7 @@ class ApiClient extends GetxService {
         Uri.parse(appBaseUrl + uri),
         body: body,
         headers: headers,
+        encoding: Encoding.getByName("utf-8"),
       ).timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri);
     } catch (e) {
@@ -114,7 +117,6 @@ class ApiClient extends GetxService {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
-
   Future<Response> postMultipartData(
       String uri, Map<String, String> body, List<MultipartBody> multipartBody,
       {required Map<String, String>? headers}) async {
@@ -125,7 +127,7 @@ class ApiClient extends GetxService {
       }
       Http.MultipartRequest request =
           Http.MultipartRequest('POST', Uri.parse(appBaseUrl + uri));
-      request.headers.addAll(headers ?? _mainHeaders);
+      request.headers.addAll(headers!);
       for (MultipartBody multipart in multipartBody) {
         if (multipart.file != null) {
           Uint8List list = await multipart.file.readAsBytes();
@@ -183,7 +185,7 @@ class ApiClient extends GetxService {
   Response handleResponse(Http.Response response, String uri) {
     dynamic body;
     try {
-      body = jsonDecode(response.body);
+      body = jsonDecode(utf8.decode(response.bodyBytes));
     } catch (e) {}
     Response response0 = Response(
       body: body ?? response.body,

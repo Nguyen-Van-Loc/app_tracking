@@ -30,6 +30,8 @@ class AppConstants {
   static const String LOG_OUT = '/mita/oauth/logout';
   static const String BLOCK_USER = '/mita/users/lock/';
   static const String TIME_SHEETS = '/mita/time-sheets/check-in/';
+  static const String IMAGE_FILE = '/mita/public/images/imagelogo.png';
+  static const String POST_IMAGE = '/mita/public/uploadFile';
   static const String GET_USER = '/mita/users/get-user-current';
   static const String GET_ALLOCATION_VOUCHERS = '/asvn/api/v1/instruments-and-tools/allocation-vouchers/page?pageIndex=1&pageSize=10';
   // Shared Key

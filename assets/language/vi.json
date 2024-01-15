@@ -1041,5 +1041,7 @@
   "comment": "Bình luận",
   "timekeeping": "Chấm công",
   "you've_already_marked_your_time_today": "Bạn đã chấm công hôm nay rồi.",
-  "you_have_succeeded_in_timekeeping": "Bạn đã chấm công thành công"
+  "you_have_succeeded_in_timekeeping": "Bạn đã chấm công thành công",
+  "post": "Đăng bài",
+  "": ""
 }

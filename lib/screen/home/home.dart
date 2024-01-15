@@ -33,7 +33,7 @@ class _HomeState extends State<Home> {
   ];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   var index = 0.obs;
-  var title = "home".obs;
+  String title = "home";
   var _currentIndex = 0;
   bool check = false;
   List<Notifications>? list;
@@ -41,9 +41,14 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    title.value = "home".tr;
     _currentIndex = 0;
+    title = "home";
     getNotification();
+  }
+
+  void showSnackbar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   void getNotification() async {
@@ -51,10 +56,20 @@ class _HomeState extends State<Home> {
     setState(() {
       check = true;
     });
-    list = await Get.find<AuthController>().getNotification();
-    setState(() {
-      check = false;
-    });
+    try {
+      final value = await Get.find<AuthController>().getNotification();
+      if (value == 200) {
+        list = Get.find<AuthController>().listNoti;
+      } else {
+        showSnackbar("Lỗi dữ liệu");
+      }
+    } catch (e) {
+      showSnackbar("Error loading user data");
+    } finally {
+      setState(() {
+        check = false;
+      });
+    }
   }
 
   Future<void> onButtonTimesheets() async {
@@ -62,8 +77,7 @@ class _HomeState extends State<Home> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool hasClickedToday = prefs.getString('lastClickedDate') == currentDate;
     if (!hasClickedToday) {
-      await Get.find<AuthController>()
-          .time_Sheets(Get.find<AuthRepo>().getIp());
+      await Get.find<AuthController>().timeSheets(Get.find<AuthRepo>().getIp());
       prefs.setString('lastClickedDate', currentDate);
     } else {
       EasyLoading.showError("you've_already_marked_your_time_today".tr);
@@ -75,14 +89,17 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Obx(() => Text(title.value)),
+        title: Text(title.tr),
         actions: [
           _buildNotificationButton(),
           TextButton(
               onPressed: () async {
                 onButtonTimesheets();
               },
-              child: Text("timekeeping".tr,style: TextStyle(color: Colors.white),))
+              child: Text(
+                "timekeeping".tr,
+                style: const TextStyle(color: Colors.white),
+              ))
         ],
       ),
       body: listWidget[_currentIndex],
@@ -97,17 +114,17 @@ class _HomeState extends State<Home> {
         _currentIndex = i;
         switch (_currentIndex) {
           case 0:
-            title.value = "home".tr;
+            title = "home";
             // logOut();
             break;
           case 1:
-            title.value = "favorite".tr;
+            title = "favorite";
             break;
           case 2:
-            title.value = "search".tr;
+            title = "search";
             break;
           case 3:
-            title.value = "profile".tr;
+            title = "profile";
             break;
         }
       }),

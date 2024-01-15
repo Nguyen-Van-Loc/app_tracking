@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:app_tracking/api/auth_controller.dart';
 import 'package:app_tracking/data/model/body/news.dart';
 import 'package:app_tracking/data/model/body/user.dart';
-import 'package:app_tracking/screen/home/image_video_gallery.dart';
-import 'package:app_tracking/view/custom_checkbox.dart';
-import 'package:app_tracking/view/custom_snackbar.dart';
+import 'package:app_tracking/screen/home/image_video_gallery_screen.dart';
+import 'package:app_tracking/widgets/media_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,28 +12,22 @@ import '../../data/repository/auth_repo.dart';
 import '../../helper/date_converter.dart';
 import '../../utils/styles.dart';
 
-class Create_Articles extends StatefulWidget {
-  const Create_Articles({super.key});
+class ArticlesScreen extends StatefulWidget {
+  const ArticlesScreen({super.key});
 
   @override
-  State<Create_Articles> createState() => _Create_ArticlesState();
+  State<ArticlesScreen> createState() => ArticlesScreenState();
 }
 
-class _Create_ArticlesState extends State<Create_Articles> {
-  late FocusNode myFocusNode;
+class ArticlesScreenState extends State<ArticlesScreen> {
   List<File> list = [];
   final contentController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    myFocusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    myFocusNode.dispose();
+  void removeFromList(File item) {
+    print(list);
+    setState(() {
+      list.remove(item);
+    });
   }
 
   Future<void> _selectImages() async {
@@ -50,72 +43,6 @@ class _Create_ArticlesState extends State<Create_Articles> {
     }
   }
 
-  Widget buildMediaWidget(File itemIndex, bool multiple) {
-    if (itemIndex.path.endsWith('.mp4')) {
-      return Stack(
-        children: [
-          SizedBox(
-            width:
-                multiple ? MediaQuery.of(context).size.width / 2 - 12.0 : null,
-            height: multiple ? 258.0 : null,
-            child: VideoWidget(videoPath: itemIndex),
-          ),
-          Positioned(
-            right: 0,
-            child: MaterialButton(
-              onPressed: () {
-                setState(() {
-                  list.removeWhere((element) => element == itemIndex);
-                });
-              },
-              padding: EdgeInsets.zero,
-              minWidth: 0,
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.clear,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      return Stack(
-        children: [
-          InkWell(
-            onTap: () {
-              Get.to(ShowImage(image: itemIndex));
-            },
-            child: Image.file(
-              itemIndex,
-              width: multiple
-                  ? MediaQuery.of(context).size.width / 2 - 12.0
-                  : null,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned(
-            right: 0,
-            child: MaterialButton(
-              onPressed: () {
-                setState(() {
-                  list.removeWhere((element) => element == itemIndex);
-                });
-              },
-              padding: EdgeInsets.zero,
-              minWidth: 0,
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.clear,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,13 +50,15 @@ class _Create_ArticlesState extends State<Create_Articles> {
         title: Text("create_articles".tr),
         actions: [
           MaterialButton(
-            onPressed: () {
-              onPostNews();
-            },
+            onPressed: contentController.text.isEmpty
+                ? null
+                : () {
+                    onPostNews();
+                  },
             minWidth: 0,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              "Đăng",
+              "post".tr,
               style: robotoRegular,
             ),
           )
@@ -155,11 +84,7 @@ class _Create_ArticlesState extends State<Create_Articles> {
           ),
         ),
       ),
-      body: InkWell(
-        highlightColor: Colors.transparent,
-        splashFactory: NoSplash.splashFactory,
-        onTap: () => myFocusNode.requestFocus(),
-        child: SafeArea(
+      body:  SafeArea(
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -182,14 +107,17 @@ class _Create_ArticlesState extends State<Create_Articles> {
                   ),
                 ),
                 Container(
+                  margin: EdgeInsets.symmetric(vertical: 5),
                   height: 5,
                   color: Get.isDarkMode ? Colors.black38 : Colors.grey.shade200,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: TextField(
+                    onChanged: (txt){
+                      setState(() {});
+                    },
                     controller: contentController,
-                    focusNode: myFocusNode,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: "what_are_you_thinking".tr,
@@ -197,35 +125,17 @@ class _Create_ArticlesState extends State<Create_Articles> {
                   ),
                 ),
                 if (list.length >= 2)
-                  Wrap(
-                    spacing: 5.0,
-                    runSpacing: 5.0,
-                    children: list
-                        .map((itemIndex) => buildMediaWidget(itemIndex, true))
-                        .toList(),
-                  )
+                  MultipleImagesWidget(list: list, onRemove: removeFromList)
                 else
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: list.length,
-                    itemBuilder: (context, index) {
-                      final itemIndex = list[index];
-                      return buildMediaWidget(itemIndex, false);
-                    },
-                  ),
+                  SingleImageWidget(list: list, onRemove: removeFromList),
               ],
             ),
           ),
         ),
-      ),
     );
   }
 
   void onPostNews() async {
-    if (isEmpty(contentController.text, "what_are_you_thinking".tr)) {
-      return;
-    }
     List<Media> mediaList = [];
     int currentId = 0;
     final formattedDate = DateConverter.localDateToIsoString(DateTime.now());
@@ -236,25 +146,23 @@ class _Create_ArticlesState extends State<Create_Articles> {
         user: User.fromJson(ad.body), date: formattedDate, id: 0, type: 0);
     for (var file in list) {
       Media media = Media(
-        id: currentId,
-        name: file.path,
-        contentType: file.path.endsWith('.mp4')? "mp4" : "jpg",
-        contentSize: file.lengthSync()~/ 1024,
-        isVideo: true,
-        filePath: file.path,
-        extension: ""
-      );
+          id: currentId,
+          name: file.path,
+          contentType: file.path.endsWith('.mp4') ? "mp4" : "jpg",
+          contentSize: file.lengthSync() ~/ 1024,
+          isVideo: true,
+          filePath: file.path,
+          extension: "");
       currentId++;
       mediaList.add(media);
     }
     Get.find<AuthController>().postNews(News(
-      content: contentController.text,
-      date: formattedDate,
-      user: User.fromJson(ad.body),
-      comments:[comments],
-      likes: [like],
-      media: mediaList
-    ));
+        content: contentController.text,
+        date: formattedDate,
+        user: User.fromJson(ad.body),
+        comments: [comments],
+        likes: [like],
+        media: mediaList));
     await Future.delayed(const Duration(seconds: 2));
     Navigator.pop(context);
   }

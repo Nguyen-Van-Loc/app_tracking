@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
@@ -36,15 +37,16 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
         ),
         child: widget.value
             ? const Icon(
-          Icons.check,
-          size: 20,
-          color: Colors.white,
-        )
+                Icons.check,
+                size: 20,
+                color: Colors.white,
+              )
             : null,
       ),
     );
   }
 }
+
 class ShowImage extends StatelessWidget {
   const ShowImage({super.key, required this.image});
 
@@ -54,28 +56,57 @@ class ShowImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(children: [
-          PhotoView(imageProvider: FileImage(image)),
-          Positioned(
-              top: 20,
-              left: 10,
-              child: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.arrow_back, color: Colors.white))),
-        ]));
+      PhotoView(imageProvider: FileImage(image)),
+      Positioned(
+          top: 20,
+          left: 10,
+          child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back, color: Colors.white))),
+    ]));
   }
 }
+
+class ShowVideo extends StatelessWidget {
+  const ShowVideo({super.key, required this.fileVideo});
+  final File fileVideo;
+  @override
+  Widget build(BuildContext context) {
+    FlickManager manager = FlickManager(
+        videoPlayerController: VideoPlayerController.file(fileVideo));
+    print(manager);
+    return Scaffold(
+      body: Center(
+        child: Stack(
+          children: [
+            FlickVideoPlayer(flickManager: manager),
+            Positioned(
+                top: 20,
+                left: 10,
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.arrow_back, color: Colors.white)))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class VideoWidget extends StatefulWidget {
   final File videoPath;
 
   const VideoWidget({required this.videoPath, Key? key}) : super(key: key);
 
   @override
-  _VideoWidgetState createState() => _VideoWidgetState();
+  VideoWidgetState createState() => VideoWidgetState();
 }
 
-class _VideoWidgetState extends State<VideoWidget> {
+class VideoWidgetState extends State<VideoWidget> {
   VideoPlayerController? videoPlayerController;
 
   @override
@@ -102,10 +133,10 @@ class _VideoWidgetState extends State<VideoWidget> {
           VideoPlayer(videoPlayerController!),
           const Center(
               child: Icon(
-                CupertinoIcons.play_circle,
-                size: 50,
-                color: Colors.white,
-              )),
+            CupertinoIcons.play_circle,
+            size: 50,
+            color: Colors.white,
+          )),
         ],
       ),
     );

@@ -821,5 +821,6 @@
   "comment": "Comment",
   "timekeeping": "Timekeeping",
   "you've_already_marked_your_time_today": "You've already marked your time today.",
-  "you_have_succeeded_in_timekeeping": "You have succeeded in timekeeping"
+  "you_have_succeeded_in_timekeeping": "You have succeeded in timekeeping",
+  "post": "Post"
 }

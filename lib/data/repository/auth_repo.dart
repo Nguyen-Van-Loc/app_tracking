@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:app_tracking/data/model/body/news.dart';
 import 'package:app_tracking/data/model/body/token_request.dart';
 import 'package:app_tracking/data/model/body/user.dart';
@@ -55,9 +56,9 @@ class AuthRepo {
 
   Future<Response> listNew(int size) async {
     Get.lazyPut(
-        () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
+            () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
     return await apiClient.postData(AppConstants.GET_NEWS,
-        {"keyWord": "string", "pageIndex": 0, "size": size, "status": 0});
+        {"keyWord": "string", "pageIndex": "0", "size": size.toString(), "status": "0"});
   }
 
   Future<Response> getTracking() async {
@@ -114,6 +115,7 @@ class AuthRepo {
       "username": user.username,
       "year": user.year.toString(),
       "roles": roles,
+      "image":user.image
     });
   }
 
@@ -127,7 +129,22 @@ class AuthRepo {
       "comments": news.comments
     });
   }
-
+  Future<Response> postImage(List<MultipartBody> imageImage) async {
+    final token = Get.find<AuthRepo>().getUserToken();
+    var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
+    Map<String, String> header = {
+      'Content-Type': 'multipart/form-data',
+      AppConstants.LOCALIZATION_KEY:
+      languageCode ?? AppConstants.languages[0].languageCode,
+      'Authorization': token
+    };
+    return await apiClient.postMultipartData(
+      AppConstants.POST_IMAGE,
+      {"uploadfile":imageImage[0].file.toString()},
+      imageImage,
+      headers: header,
+    );
+  }
   Future<Response> getNotifi() async {
     return await apiClient.getData(
       AppConstants.GET_NOTIFI,
@@ -213,7 +230,7 @@ class AuthRepo {
         headers: header);
   }
 
-  Future<Response> getTime_Sheets(String ip) async {
+  Future<Response> getTimeSheets(String ip) async {
     final token = Get.find<AuthRepo>().getUserToken();
     var languageCode = sharedPreferences.getString(AppConstants.LANGUAGE_CODE);
     Map<String, String> header = {
@@ -225,7 +242,9 @@ class AuthRepo {
     return await apiClient.getData(AppConstants.TIME_SHEETS,
         query: {"ip": ip}, headers: header);
   }
-
+  Future<Response> getImage() async {
+    return await apiClient.getData(AppConstants.IMAGE_FILE,);
+  }
   Future<String> _saveDeviceToken() async {
     String? deviceToken = '@';
     if (!GetPlatform.isWeb) {

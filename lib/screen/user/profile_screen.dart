@@ -1,8 +1,8 @@
 import 'package:app_tracking/api/auth_controller.dart';
 import 'package:app_tracking/helper/route_helper.dart';
-import 'package:app_tracking/screen/user/listofemployee.dart';
-import 'package:app_tracking/screen/user/myprofile.dart';
-import 'package:app_tracking/screen/user/tranking.dart';
+import 'package:app_tracking/screen/user/list_of_employee_screen.dart';
+import 'package:app_tracking/screen/user/my_profile_screen.dart';
+import 'package:app_tracking/screen/user/tranking_screen.dart';
 import 'package:app_tracking/utils/styles.dart';
 import 'package:app_tracking/view/custom_list.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,7 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     // TODO: implement initState
-    Get.find<AuthController>().getCurrentUser();
+    Get.find<AuthController>().getImageFile();
   }
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               alignment: Alignment.center,
               child: const CircleAvatar(
                   radius: 50,
-                  backgroundImage: AssetImage("assets/image/logo_login.jpg")),
+                  backgroundImage: NetworkImage("http://android-tracking.oceantech.com.vn/mita/public/images/imagelogo.png")),
             ),
             GetBuilder<AuthController>(
               builder: (controller) {
@@ -64,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: CupertinoIcons.list_dash,
                 iconsux: Icons.navigate_next,
                 onPressed: () {
-                  Get.to(const Listofemployee(),transition: Transition.rightToLeftWithFade);
+                  Get.to(const ListOfEmployeeScreen(),transition: Transition.rightToLeftWithFade);
                 }),
             const SizedBox(
               height: 20,
