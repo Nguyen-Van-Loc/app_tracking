@@ -57,11 +57,12 @@ class _HomeScreenSection0State extends State<HomeScreenSection0> {
       }
     } catch (e) {
       showSnackbar("Error loading user data");
+    }finally {
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() {
+        loadingMove = false;
+      });
     }
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      loadingMove = false;
-    });
     showCommentsList = List.generate(newsList!.length, (index) => false);
     commentsControllers =
         List.generate(newsList!.length, (index) => TextEditingController());
