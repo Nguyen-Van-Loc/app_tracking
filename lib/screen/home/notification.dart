@@ -24,15 +24,28 @@ class _Notification_ScreenState extends State<Notification_Screen> {
     super.initState();
     getNotification();
   }
-
+  void showSnackbar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
   void getNotification() async {
     setState(() {
       loading = true;
     });
-    _list = await Get.find<AuthController>().getNotification();
-    setState(() {
-      loading = false;
-    });
+    try {
+      final value = await Get.find<AuthController>().getNotification();
+      if (value == 200) {
+        _list = Get.find<AuthController>().listNoti;
+      } else {
+        showSnackbar("Lỗi dữ liệu");
+      }
+    } catch (e) {
+      showSnackbar("Error loading user data");
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
