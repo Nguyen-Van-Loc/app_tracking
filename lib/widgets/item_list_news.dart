@@ -1,21 +1,28 @@
-import 'package:app_tracking/api/auth_controller.dart';
+import 'package:app_tracking/api/news_controller.dart';
 import 'package:app_tracking/data/model/body/news.dart';
 import 'package:app_tracking/utils/styles.dart';
 import 'package:app_tracking/widgets/textflied_signup.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../data/model/body/user.dart';
 import '../data/repository/auth_repo.dart';
 import '../helper/date_converter.dart';
 
 class ItemListNew extends StatefulWidget {
-  const ItemListNew({super.key, this.itemIndex, required this.index, required this.commentsControllers, required this.showCommentsList, this.getListNews});
+  const ItemListNew(
+      {super.key,
+      this.itemIndex,
+      required this.index,
+      required this.commentsControllers,
+      required this.showCommentsList,
+      this.getListNews});
+
   final dynamic itemIndex;
   final int index;
   final List<TextEditingController> commentsControllers;
   final List<bool> showCommentsList;
   final Function()? getListNews;
+
   @override
   State<ItemListNew> createState() => _ItemListNewState();
 }
@@ -92,7 +99,8 @@ class _ItemListNewState extends State<ItemListNew> {
               TextButton.icon(
                 onPressed: () {
                   setState(() {
-                     widget.showCommentsList[widget.index] = !widget.showCommentsList[widget.index];
+                    widget.showCommentsList[widget.index] =
+                        !widget.showCommentsList[widget.index];
                   });
                 },
                 label: const Text("Bình luận"),
@@ -114,7 +122,7 @@ class _ItemListNewState extends State<ItemListNew> {
                   hintText: "write_a_comment".tr,
                   onClear: () {
                     setState(() {
-                     widget.commentsControllers[widget.index].clear();
+                      widget.commentsControllers[widget.index].clear();
                     });
                   },
                 ),
@@ -134,22 +142,23 @@ class _ItemListNewState extends State<ItemListNew> {
       ],
     );
   }
+
   void onLike(News itemIndex) async {
     Response ad = await Get.find<AuthRepo>().getCurrentUser();
     final formattedDate = DateConverter.localDateToIsoString(DateTime.now());
-    Get.find<AuthController>().likesNews(News(
+    Get.find<NewsController>().likesNews(News(
         id: itemIndex.id,
         content: itemIndex.content,
         date: formattedDate,
         user: User.fromJson(ad.body),
         comments: itemIndex.comments,
         media: itemIndex.media));
-    widget.getListNews!();
   }
+
   Future<void> onComment(News itemIndex, int index) async {
     Response ad = await Get.find<AuthRepo>().getCurrentUser();
     final formattedDate = DateConverter.localDateToIsoString(DateTime.now());
-    Get.find<AuthController>().commentsNews(
+    Get.find<NewsController>().commentsNews(
         News(
             id: itemIndex.id,
             content: itemIndex.content,
@@ -159,13 +168,13 @@ class _ItemListNewState extends State<ItemListNew> {
             media: itemIndex.media),
         widget.commentsControllers[index].text);
     widget.showCommentsList[index] = false;
-    widget.getListNews!();
+    widget.commentsControllers[index].clear();
   }
 
   Future showLikeComment(News itemIndex, int index) {
     return Get.bottomSheet(
         backgroundColor:
-        Get.isDarkMode ? const Color(0xff7a7a7a) : Colors.white,
+            Get.isDarkMode ? const Color(0xff7a7a7a) : Colors.white,
         Column(
           children: [
             Padding(
@@ -197,18 +206,18 @@ class _ItemListNewState extends State<ItemListNew> {
               child: SingleChildScrollView(
                 child: itemIndex.comments == null
                     ? const Center(
-                  child: Text("Bài viết chưa có bình luận nào ?"),
-                )
+                        child: Text("Bài viết chưa có bình luận nào ?"),
+                      )
                     : ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: itemIndex.comments!.length,
-                  itemBuilder: (context, index) {
-                    final item = itemIndex.comments![
-                    itemIndex.comments!.length - 1 - index];
-                    return itemListComment(item);
-                  },
-                ),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: itemIndex.comments!.length,
+                        itemBuilder: (context, index) {
+                          final item = itemIndex.comments![
+                               index];
+                          return itemListComment(item);
+                        },
+                      ),
               ),
             ),
             // Row(
@@ -245,6 +254,7 @@ class _ItemListNewState extends State<ItemListNew> {
           ],
         ));
   }
+
   Widget itemListComment(item) {
     return Padding(
       padding: const EdgeInsets.all(8.0),

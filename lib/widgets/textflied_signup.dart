@@ -13,6 +13,7 @@ class InputTextField extends StatefulWidget {
   final bool? enabled;
   final TextInputType? textInputType;
   final bool? text;
+  final double? vetical;
 
   const InputTextField({
     Key? key,
@@ -26,6 +27,7 @@ class InputTextField extends StatefulWidget {
     this.textInputType,
     this.enabled,
     this.text,
+    this.vetical,
   }) : super(key: key);
 
   @override
@@ -50,40 +52,44 @@ class _InputTextFieldState extends State<InputTextField> {
           const SizedBox(
             height: 10,
           ),
-          TextField(
-            controller: widget.controller,
-            onChanged: (_) {
-              setState(() {});
-            },
-            obscureText: widget.obscureText,
-            keyboardType: widget.textInputType,
-            enabled: widget.enabled,
-            decoration: InputDecoration(
-              suffixIcon: MaterialButton(
-                onPressed: widget.onClear,
-                minWidth: 0,
-                shape: const CircleBorder(),
-                child: widget.checkEye != null
-                    ? widget.checkEye!
-                        ? const Icon(
-                            CupertinoIcons.eye_solid,
-                            color: Colors.grey,
-                          )
-                        : const Icon(
-                            CupertinoIcons.eye_slash_fill,
-                            color: Colors.grey,
-                          )
-                    : widget.controller.text.isNotEmpty
-                        ? const Icon(
-                            Icons.close,
-                            size: 25,
-                          )
-                        : null,
-              ),
-              contentPadding: const EdgeInsets.all(15),
-              hintText: widget.hintText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: widget.vetical ?? 0),
+            child: TextField(
+              controller: widget.controller,
+              onChanged: (_) {
+                setState(() {});
+              },
+              obscureText: widget.obscureText,
+              keyboardType: widget.textInputType,
+              enabled: widget.enabled,
+              decoration: InputDecoration(
+                suffixIcon: MaterialButton(
+                  onPressed: widget.onClear,
+                  minWidth: 0,
+                  padding: const EdgeInsets.all(0),
+                  shape: const CircleBorder(),
+                  child: widget.checkEye != null
+                      ? widget.checkEye!
+                          ? const Icon(
+                              CupertinoIcons.eye_solid,
+                              color: Colors.grey,
+                            )
+                          : const Icon(
+                              CupertinoIcons.eye_slash_fill,
+                              color: Colors.grey,
+                            )
+                      : widget.controller.text.isNotEmpty
+                          ? const Icon(
+                              Icons.close,
+                              size: 25,
+                            )
+                          : null,
+                ),
+                contentPadding: const EdgeInsets.all(15),
+                hintText: widget.hintText,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
               ),
             ),
           ),

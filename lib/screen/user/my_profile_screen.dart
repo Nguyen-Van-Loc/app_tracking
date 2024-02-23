@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:app_tracking/api/auth_controller.dart';
+import 'package:app_tracking/api/list_user_controller.dart';
+import 'package:app_tracking/api/user_controller.dart';
 import 'package:app_tracking/data/api/api_client.dart';
 import 'package:app_tracking/data/model/body/user.dart';
 import 'package:app_tracking/screen/home/image_video_gallery_screen.dart';
@@ -21,29 +23,30 @@ class MyProfile extends StatefulWidget {
 
 class _MyProfileState extends State<MyProfile> {
   File? imageFile;
-  String image = "";
   final usernameController = TextEditingController();
   final displayNameController = TextEditingController();
   final emailController = TextEditingController();
   final universityController = TextEditingController();
   final studentyearController = TextEditingController();
+  late UserController userController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    userController = Get.find<UserController>();
     _fetchUserInfo();
   }
 
-  void _fetchUserInfo() async {
-    Get.find<AuthController>().getCurrentUser();
-    AuthController authController = Get.find<AuthController>();
-    usernameController.text = authController.user.username.toString().tr;
-    displayNameController.text = authController.user.displayName.toString().tr;
-    emailController.text = authController.user.email.toString().tr;
-    universityController.text = authController.user.university.toString().tr;
-    studentyearController.text = authController.user.year.toString().tr;
-    image = Get.find<AuthController>().image;
+  Future<void> _fetchUserInfo() async {
+    await userController.getCurrentUser();
+    usernameController.text = userController.user.username?.toString() ?? '';
+    displayNameController.text =
+        userController.user.displayName?.toString() ?? '';
+    emailController.text = userController.user.email?.toString() ?? '';
+    universityController.text =
+        userController.user.university?.toString() ?? '';
+    studentyearController.text = userController.user.year?.toString() ?? '';
   }
 
   @override
@@ -73,62 +76,50 @@ class _MyProfileState extends State<MyProfile> {
                     radius: 50,
                     backgroundImage: imageFile != null
                         ? FileImage(imageFile!)
-                        : Image.memory(Uint8List.fromList(image.codeUnits))
+                        : Image.memory(Uint8List.fromList(
+                                userController.image.codeUnits))
                             .image,
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
                 InputTextField(
+                  vetical: 15,
                   text: true,
                   enabled: false,
                   width: MediaQuery.of(context).size.width - 20,
                   controller: usernameController,
                   hintText: "username".tr,
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
                 InputTextField(
+                  vetical: 15,
                   text: true,
                   width: MediaQuery.of(context).size.width - 20,
                   controller: displayNameController,
                   hintText: "displayName".tr,
                   onClear: () => displayNameController.clear(),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
                 InputTextField(
+                  vetical: 15,
                   text: true,
                   width: MediaQuery.of(context).size.width - 20,
                   controller: emailController,
                   hintText: "email".tr,
                   onClear: () => emailController.clear(),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
                 InputTextField(
+                  vetical: 15,
                   text: true,
                   width: MediaQuery.of(context).size.width - 20,
                   controller: universityController,
                   hintText: "school's_name".tr,
                   onClear: () => universityController.clear(),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
                 InputTextField(
+                  vetical: 15,
                   text: true,
                   width: MediaQuery.of(context).size.width - 20,
                   controller: studentyearController,
                   hintText: "student_year".tr,
                   onClear: () => studentyearController.clear(),
-                ),
-                const SizedBox(
-                  height: 30,
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -141,6 +132,9 @@ class _MyProfileState extends State<MyProfile> {
                     "edit".tr,
                     style: robotoRegular,
                   ),
+                ),
+                const SizedBox(
+                  height: 15,
                 )
               ],
             ),
@@ -151,9 +145,11 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   void onEdit() async {
-    if(imageFile!=null){
-      List<MultipartBody> list = [MultipartBody("uploadfile", XFile(imageFile!.path))];
-      Get.find<AuthController>().postImage(list);
+    if (imageFile != null) {
+      List<MultipartBody> list = [
+        MultipartBody("uploadfile", XFile(imageFile!.path))
+      ];
+      Get.find<UserController>().postImage(list);
     }
     AuthController authController = Get.find<AuthController>();
     if (isEmpty(usernameController.text, "username".tr) ||
@@ -164,7 +160,7 @@ class _MyProfileState extends State<MyProfile> {
         isEmpty(studentyearController.text, "student_year".tr)) {
       return;
     }
-    Get.find<AuthController>().editUser(User(
+    Get.find<ListUserController>().editUser(User(
       id: authController.user.id,
       username: usernameController.text,
       email: emailController.text,

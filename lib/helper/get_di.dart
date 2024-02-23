@@ -2,8 +2,11 @@ import 'dart:convert';
 
 
 import 'package:app_tracking/api/auth_controller.dart';
+import 'package:app_tracking/api/list_user_controller.dart';
 import 'package:app_tracking/api/localization_controller.dart';
+import 'package:app_tracking/api/news_controller.dart';
 import 'package:app_tracking/api/splash_controller.dart';
+import 'package:app_tracking/api/user_controller.dart';
 import 'package:app_tracking/data/repository/ccdc_repo.dart';
 import 'package:app_tracking/data/repository/splash_repo.dart';
 import 'package:camera/camera.dart';
@@ -43,7 +46,9 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => LocalizationController(sharedPreferences: Get.find()));
   Get.lazyPut(() => SplashController(repo: Get.find()));
   Get.lazyPut(() => AuthController(repo: Get.find()));
-
+  Get.lazyPut(() => NewsController(repo: Get.find()));
+  Get.lazyPut(() => ListUserController(repo: Get.find()));
+  Get.lazyPut(() => UserController(repo: Get.find()));
   if (await Permission.location.isGranted) {
     final newLocalData = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.low);

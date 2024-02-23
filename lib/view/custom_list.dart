@@ -31,80 +31,83 @@ class Custom_list extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: InkWell(
-        onTap: textTile == "language"
-            ? () {
-          _showPopupMenu(
-                (index) {
-              Get.find<LocalizationController>().setLanguage(Locale(
-                AppConstants.languages[index].languageCode,
-                AppConstants.languages[index].countryCode,
-              ));
-            },
-            context,
-          );
-        }
-            : onPressed,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          width: MediaQuery.of(context).size.width - 40,
-          height: 50,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(radius!),
-            border: Border.all(width: 0.7),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(icon),
-                  const SizedBox(width: 10),
-                  Text(
-                    textTile!.tr,
-                    style: robotoMedium,
-                  ),
-                ],
-              ),
-              textTile == "language"
-                  ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GetBuilder<LocalizationController>(
-                    builder: (controller) {
-                      return Text(
-                        controller.locale.languageCode == 'vi'
-                            ? 'lang_vi'.tr
-                            : 'lang_en'.tr,
-                        style: const TextStyle(color: Colors.grey),
-                      );
-                    },
-                  ),
-                  const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                ],
-              )
-                  : textTile == "regime"
-                  ? GetBuilder<ThemeController>(
-                builder: (controller) {
-                  return Switch(
-                    thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
-                          (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.selected)) {
-                          return const Icon(Icons.dark_mode);
-                        }
-                        return const Icon(Icons.light_mode);
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Material(
+        child: InkWell(
+          onTap: textTile == "language"
+              ? () {
+            _showPopupMenu(
+                  (index) {
+                Get.find<LocalizationController>().setLanguage(Locale(
+                  AppConstants.languages[index].languageCode,
+                  AppConstants.languages[index].countryCode,
+                ));
+              },
+              context,
+            );
+          }
+              : onPressed,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            width: MediaQuery.of(context).size.width - 40,
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(radius!),
+              border: Border.all(width: 0.7),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon),
+                    const SizedBox(width: 10),
+                    Text(
+                      textTile!.tr,
+                      style: robotoMedium,
+                    ),
+                  ],
+                ),
+                textTile == "language"
+                    ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GetBuilder<LocalizationController>(
+                      builder: (controller) {
+                        return Text(
+                          controller.locale.languageCode == 'vi'
+                              ? 'lang_vi'.tr
+                              : 'lang_en'.tr,
+                          style: const TextStyle(color: Colors.grey),
+                        );
                       },
                     ),
-                    value: controller.darkTheme ?? false,
-                    onChanged: (bool value) {
-                      controller.toggleTheme();
-                    },
-                  );
-                },
-              )
-                  : Icon(iconsux),
-            ],
+                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                  ],
+                )
+                    : textTile == "regime"
+                    ? GetBuilder<ThemeController>(
+                  builder: (controller) {
+                    return Switch(
+                      thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return const Icon(Icons.dark_mode);
+                          }
+                          return const Icon(Icons.light_mode);
+                        },
+                      ),
+                      value: controller.darkTheme ?? false,
+                      onChanged: (bool value) {
+                        controller.toggleTheme();
+                      },
+                    );
+                  },
+                )
+                    : Icon(iconsux),
+              ],
+            ),
           ),
         ),
       ),

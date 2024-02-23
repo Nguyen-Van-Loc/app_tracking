@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:app_tracking/api/auth_controller.dart';
 import 'package:app_tracking/data/model/body/notifi.dart';
 import 'package:app_tracking/data/repository/auth_repo.dart';
@@ -9,12 +7,10 @@ import 'package:app_tracking/screen/search/search_screen.dart';
 import 'package:app_tracking/screen/user/profile_screen.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'home_screen.dart';
 
 class Home extends StatefulWidget {
@@ -24,14 +20,13 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   List<Widget> listWidget = [
-    const HomeScreenSection0(),
+    const HomeScreen(),
     const LikesScreen(),
     const SearchScreen(),
     const ProfileScreen(),
   ];
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   var index = 0.obs;
   String title = "home";
   var _currentIndex = 0;
@@ -85,8 +80,8 @@ class _HomeState extends State<Home> {
   }
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(title.tr),
@@ -102,7 +97,14 @@ class _HomeState extends State<Home> {
               ))
         ],
       ),
-      body: listWidget[_currentIndex],
+      body: IndexedStack(
+          index: _currentIndex,
+          children: const [
+            HomeScreen(),
+            LikesScreen(),
+            SearchScreen(),
+            ProfileScreen(),
+          ],),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -115,7 +117,6 @@ class _HomeState extends State<Home> {
         switch (_currentIndex) {
           case 0:
             title = "home";
-            // logOut();
             break;
           case 1:
             title = "favorite";
@@ -176,4 +177,8 @@ class _HomeState extends State<Home> {
               )),
         ));
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

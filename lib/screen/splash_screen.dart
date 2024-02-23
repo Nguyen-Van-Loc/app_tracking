@@ -1,15 +1,13 @@
 import 'dart:async';
 
-
 import 'package:app_tracking/api/auth_controller.dart';
 import 'package:app_tracking/api/splash_controller.dart';
+import 'package:app_tracking/api/user_controller.dart';
 import 'package:app_tracking/screen/home/home.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-
 
 import '../../helper/route_helper.dart';
 import '../../utils/dimensions.dart';
@@ -26,6 +24,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   GlobalKey<ScaffoldState> _globalKey = GlobalKey();
   late StreamSubscription<ConnectivityResult> _onConnectivityChanged;
+
   @override
   void initState() {
     super.initState();
@@ -82,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _route() {
-    Get.find<AuthController>().getCurrentUser().then((value) => {
+    Get.find<UserController>().getCurrentUser().then((value) => {
           if (value == 200)
             {
               Get.off(const Home(),
@@ -95,4 +94,3 @@ class _SplashScreenState extends State<SplashScreen> {
         });
   }
 }
-

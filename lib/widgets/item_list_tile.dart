@@ -40,7 +40,7 @@ class ItemListTile extends StatelessWidget {
 class buildInfoCard extends StatelessWidget {
   const buildInfoCard({super.key, this.title,  this.field,  this.status,  this.controller, this.enabled});
   final String? title;
-  final String? field;
+  final dynamic field;
   final bool? status;
   final bool? enabled;
   final TextEditingController? controller;

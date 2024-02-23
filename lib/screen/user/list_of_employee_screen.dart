@@ -1,6 +1,6 @@
 import 'package:app_tracking/api/auth_controller.dart';
-import 'package:app_tracking/data/model/body/user.dart';
-import 'package:app_tracking/view/custom_snackbar.dart';
+import 'package:app_tracking/api/list_user_controller.dart';
+import 'package:app_tracking/api/user_controller.dart';
 import 'package:app_tracking/widgets/user_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,10 +13,7 @@ class ListOfEmployeeScreen extends StatefulWidget {
 }
 
 class ListOfEmployeeScreenState extends State<ListOfEmployeeScreen> {
-  List<User>? listUser;
-  bool loading = false;
-  int page = 20;
-  bool loadingMove = false;
+  late ListUserController listUserController;
   late ScrollController _scrollController;
 
   @override
@@ -25,13 +22,14 @@ class ListOfEmployeeScreenState extends State<ListOfEmployeeScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
-    getListUser();
+    listUserController = Get.find<ListUserController>();
+    listUserController.getListUser();
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      loadMoveList();
+      listUserController.loadMoveList();
     }
   }
 
@@ -42,68 +40,47 @@ class ListOfEmployeeScreenState extends State<ListOfEmployeeScreen> {
         title: Text("list_user".tr),
       ),
       body: SafeArea(
-        child: loading
-            ? const Center(
+        child: GetBuilder<ListUserController>(
+          builder: (controller) {
+            if (controller.loading) {
+              return const Center(
                 child: CircularProgressIndicator(),
-              )
-            : ListView.builder(
+              );
+            } else {
+              return SingleChildScrollView(
                 controller: _scrollController,
-                itemBuilder: (context, index) {
-                  final itemIndex = listUser![index];
-                  return GetBuilder<AuthController>(
-                    builder: (controller) {
-                      return itemIndex.roles![0].id == 3
-                          ? const SizedBox.shrink()
-                          : UserCard(
-                              user: itemIndex,
-                              controller: controller,
-                              getList: () {
-                                getListUser();
-                              },
-                            );
-                    },
-                  );
-                },
-                itemCount: listUser!.length),
+                child: Column(
+                  children: [
+                     ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: listUserController.listUser!.length,
+                        itemBuilder: (context, index) {
+                          final itemIndex = listUserController.listUser![index];
+                          return GetBuilder<UserController>(
+                            builder: (controller) {
+                              return itemIndex.roles![0].id == 3
+                                  ? const SizedBox.shrink()
+                                  : UserCard(
+                                      user: itemIndex,
+                                      controller: controller,
+                                      getList: () {
+                                        listUserController.getListUser();
+                                      },
+                                    );
+                            },
+                          );
+                        },
+                      ),
+                    if (controller.loadMove)
+                      const Center(child: CircularProgressIndicator()),
+                  ],
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
-  }
-
-  void loadMoveList() async {
-    setState(() {
-      loadingMove = true;
-    });
-    try {
-      final value = await Get.find<AuthController>().postListUser(page += page);
-      if (value == 200) {
-        listUser = Get.find<AuthController>().listUser;
-      } else {
-        snackbarError("Error data");
-      }
-    } catch (e) {
-      snackbarError("Error loading more data");
-    } finally {
-      setState(() {
-        loading = false;
-      });
-    }
-  }
-
-  void getListUser() async {
-    loading = true;
-    try {
-      final value = await Get.find<AuthController>().postListUser(page);
-      if (value == 200) {
-        listUser = Get.find<AuthController>().listUser;
-      } else {
-        snackbarError("Error data");
-      }
-    } catch (e) {
-      snackbarError("Error loading more data");
-    } finally {
-      setState(() {
-        loading = false;
-      });
-    }
   }
 }

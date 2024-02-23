@@ -50,6 +50,8 @@ class AuthRepo {
   }
 
   Future<Response> listUser(int size) async {
+    Get.lazyPut(
+            () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()));
     return await apiClient.postData(AppConstants.SEARCH_BY_PAGE,
         {"keyWord": "string", "pageIndex": 0, "size": size, "status": 0});
   }
